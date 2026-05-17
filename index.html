@@ -7,6 +7,22 @@
   <meta name="description" content="You're invited to the Brooklyn Rooftop Summer Party — June 28 in Brooklyn, NY." />
   <meta property="og:title" content="Brooklyn Rooftop Summer Party" />
   <meta property="og:description" content="June 28 · Brooklyn, NY · 47 going · Event full — join the waitlist" />
+  <meta name="color-scheme" content="dark light" />
+
+  <script>
+    // Apply the saved (or system-preferred) theme before first paint, so the
+    // page never flashes the wrong theme.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      var theme = saved
+        || (window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <style>
     :root {
       --bg: #0d0b12;
@@ -19,6 +35,30 @@
       --warn-bg: #3a2d12;
       --warn-border: #6b521f;
       --warn-text: #f4d58a;
+      --warn-hover: #4a3a18;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Light theme — applied via data-theme on <html>. */
+    :root[data-theme="light"] {
+      --bg: #f4f2f7;
+      --card: #ffffff;
+      --card-2: #efecf6;
+      --purple: #7c4dff;
+      --purple-soft: #6a3df0;
+      --text: #1a1726;
+      --muted: #6b6478;
+      --warn-bg: #fff4d6;
+      --warn-border: #e7cf8c;
+      --warn-text: #7a5c12;
+      --warn-hover: #f1e4ba;
+      --shadow: 0 16px 40px rgba(80, 60, 130, 0.18);
+    }
+
+    /* Smooth the transition when the theme flips. */
+    body, .banner, .card, .guests {
+      transition: background-color 0.25s ease, color 0.25s ease,
+        box-shadow 0.25s ease, border-color 0.25s ease;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,7 +100,7 @@
       background: var(--card);
       border-radius: 22px;
       overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--shadow);
     }
 
     .cover {
@@ -79,6 +119,30 @@
       font-size: 40px;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
     }
+
+    /* ---- Theme toggle ---- */
+    .theme-toggle {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.08s ease;
+    }
+
+    .theme-toggle:hover { background: rgba(0, 0, 0, 0.5); }
+    .theme-toggle:active { transform: scale(0.92); }
 
     .body { padding: 22px 22px 26px; }
 
@@ -159,7 +223,7 @@
 
     /* Confirmed "you're on the waitlist" state. */
     .rsvp.waitlisted { background: var(--warn-bg); color: var(--warn-text); }
-    .rsvp.waitlisted:hover { background: #4a3a18; }
+    .rsvp.waitlisted:hover { background: var(--warn-hover); }
 
     /* ---- Waitlist note ---- */
     .waitlist-note {
@@ -190,6 +254,8 @@
     <article class="card">
       <div class="cover">
         <div class="cover-emoji">🌇🍹</div>
+        <button class="theme-toggle" id="theme-toggle" type="button"
+          aria-label="Switch theme">☀️</button>
       </div>
 
       <div class="body">
@@ -329,6 +395,32 @@
       });
 
       render();
+    })();
+
+    // Theme toggle — flips light/dark and remembers the choice.
+    (function () {
+      var root = document.documentElement;
+      var toggle = document.getElementById('theme-toggle');
+
+      function syncIcon() {
+        var light = root.getAttribute('data-theme') === 'light';
+        // Show the theme the button switches *to*.
+        toggle.textContent = light ? '🌙' : '☀️';
+        toggle.setAttribute(
+          'aria-label',
+          light ? 'Switch to dark mode' : 'Switch to light mode'
+        );
+      }
+
+      toggle.addEventListener('click', function () {
+        var next =
+          root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        syncIcon();
+      });
+
+      syncIcon();
     })();
   </script>
 </body>
