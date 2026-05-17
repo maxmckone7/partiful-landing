@@ -164,6 +164,49 @@
 
     .meta-row .icon { font-size: 16px; width: 20px; text-align: center; }
 
+    /* ---- Countdown timer ---- */
+    .countdown {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .cd-unit {
+      flex: 1;
+      background: var(--card-2);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .cd-num {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--purple-soft);
+    }
+
+    .cd-lbl {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+
+    /* Collapsed single-line state once the event has started. */
+    .countdown.ended {
+      justify-content: center;
+      padding: 14px;
+      background: var(--card-2);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--purple-soft);
+    }
+
     /* ---- Host profile ---- */
     .host {
       display: flex;
@@ -222,7 +265,7 @@
       color: var(--muted);
     }
 
-    /* ---- Guest count ---- */
+    /* ---- Guest count + avatar stack ---- */
     .guests {
       display: flex;
       align-items: center;
@@ -250,6 +293,26 @@
     .avatar.a3 { background: linear-gradient(135deg, #c9a7ff, #7c4dff); }
     .avatar.a4 { background: linear-gradient(135deg, #ffd76a, #ff9f43); }
 
+    /* The current user's avatar + an overflow chip for remaining guests. */
+    .avatar.you,
+    .avatar.overflow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .avatar.you {
+      background: linear-gradient(135deg, #2f9e57, #7c4dff);
+      color: #fff;
+    }
+
+    .avatar.overflow {
+      background: var(--card);
+      color: var(--muted);
+    }
+
     .guest-count { font-size: 15px; line-height: 1.4; }
     .guest-count strong { color: var(--purple-soft); }
 
@@ -258,6 +321,8 @@
 
     /* ---- RSVP button ---- */
     .rsvp {
+      position: relative;
+      overflow: hidden;
       width: 100%;
       margin-top: 22px;
       padding: 16px;
@@ -268,12 +333,38 @@
       font-size: 17px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.08s ease, background 0.15s ease;
+      transition: transform 0.15s ease, background 0.15s ease,
+        box-shadow 0.2s ease;
     }
 
-    .rsvp:hover { background: #8a5cff; }
-    .rsvp:active { transform: scale(0.98); }
+    /* Light streak that sweeps across the button on hover (PLT-20). */
+    .rsvp::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: skewX(-20deg);
+    }
+
+    .rsvp:hover {
+      background: #8a5cff;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
+    }
+
+    .rsvp:hover::before { animation: rsvp-shimmer 0.85s ease; }
+    .rsvp:active { transform: translateY(0) scale(0.98); }
+
+    @keyframes rsvp-shimmer {
+      to { left: 120%; }
+    }
+
     .rsvp.going { background: #2f9e57; }
+    .rsvp.going:hover { background: #36b063; }
 
     /* "Join the waitlist" call to action, shown once the event is full. */
     .rsvp.waitlist { background: #b87a1e; }
@@ -293,6 +384,61 @@
 
     .waitlist-note strong { color: var(--warn-text); }
 
+    /* ---- Secondary actions (calendar + share) ---- */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--card-2);
+      border-radius: 12px;
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .action-btn:hover { border-color: var(--purple); }
+    .action-btn:active { transform: scale(0.97); }
+    .action-btn:disabled { cursor: default; opacity: 0.85; }
+
+    .share-row { display: flex; gap: 10px; }
+    .share-row .action-btn { flex: 1; }
+
+    .cal-wrap { position: relative; }
+
+    .cal-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      z-index: 20;
+      background: var(--card-2);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .cal-option {
+      display: block;
+      padding: 12px 14px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .cal-option + .cal-option { border-top: 1px solid var(--card); }
+    .cal-option:hover { background: var(--purple); color: #fff; }
+
     .footer {
       margin-top: 22px;
       text-align: center;
@@ -301,6 +447,52 @@
     }
 
     .footer a { color: var(--purple-soft); text-decoration: none; }
+
+    /* ---- Confetti (RSVP celebration) ---- */
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -24px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-24px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+    }
+
+    /* ---- Mobile responsiveness ---- */
+    @media (max-width: 420px) {
+      .wrap { padding: 16px 12px 36px; }
+      .card { border-radius: 18px; }
+      .cover { height: 170px; }
+      .cover-emoji { font-size: 34px; }
+      .body { padding: 18px 16px 22px; }
+      h1 { font-size: 22px; }
+      .banner { font-size: 13px; padding: 10px 14px; }
+      .countdown { gap: 6px; }
+      .cd-unit { padding: 9px 4px; }
+      .cd-num { font-size: 19px; }
+      .host, .guests { padding: 12px; }
+      .host-photo { width: 44px; height: 44px; }
+    }
+
+    /* Respect users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -321,11 +513,30 @@
 
         <div class="meta-row">
           <span class="icon">📅</span>
-          <span>Saturday, June 28 · 7:00 PM</span>
+          <span>Sunday, June 28 · 7:00 PM</span>
         </div>
         <div class="meta-row">
           <span class="icon">📍</span>
           <span>Brooklyn, NY</span>
+        </div>
+
+        <div class="countdown" id="countdown" aria-label="Time until the event">
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-days">00</span>
+            <span class="cd-lbl">days</span>
+          </div>
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-hours">00</span>
+            <span class="cd-lbl">hrs</span>
+          </div>
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-mins">00</span>
+            <span class="cd-lbl">min</span>
+          </div>
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-secs">00</span>
+            <span class="cd-lbl">sec</span>
+          </div>
         </div>
 
         <div class="host">
@@ -346,6 +557,8 @@
             <div class="avatar a2"></div>
             <div class="avatar a3"></div>
             <div class="avatar a4"></div>
+            <div class="avatar you" id="avatar-you" hidden>YOU</div>
+            <div class="avatar overflow" id="avatar-overflow">+43</div>
           </div>
           <div class="guest-count">
             <div>
@@ -364,6 +577,23 @@
           <strong>8</strong> on the waitlist
         </p>
 
+        <div class="actions">
+          <div class="cal-wrap">
+            <button class="action-btn" id="cal-btn" type="button"
+              aria-haspopup="true" aria-expanded="false">📅 Add to calendar</button>
+            <div class="cal-menu" id="cal-menu" hidden>
+              <a class="cal-option" id="cal-google" target="_blank"
+                rel="noopener">Google Calendar</a>
+              <a class="cal-option" id="cal-apple"
+                download="brooklyn-rooftop-summer-party.ics">Apple Calendar (.ics)</a>
+            </div>
+          </div>
+          <div class="share-row">
+            <button class="action-btn" id="copy-btn" type="button">🔗 Copy link</button>
+            <button class="action-btn" id="share-btn" type="button">↗ Share</button>
+          </div>
+        </div>
+
         <p class="footer">
           Hosted on <a href="#">Partiful</a> · Throw a party people show up to
         </p>
@@ -372,17 +602,55 @@
   </main>
 
   <script>
-    // RSVP + waitlist interaction. While there are spots left an RSVP joins
-    // the going list; once the event is full RSVPs are optimistically routed
-    // to the waitlist instead.
+  (function () {
+    'use strict';
+
+    // ===== Event details — single source of truth for countdown + calendar.
+    // Sunday June 28, 2026, 7:00 PM EDT (UTC-4); runs ~4 hours.
+    var EVENT = {
+      title: 'Brooklyn Rooftop Summer Party',
+      location: 'Brooklyn, NY',
+      details: "You're invited to the Brooklyn Rooftop Summer Party. RSVP on Partiful.",
+      start: new Date('2026-06-28T19:00:00-04:00'),
+      end: new Date('2026-06-28T23:00:00-04:00'),
+    };
+
+    var reduceMotion =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ===== Confetti celebration (PLT-22) =============================
+    function launchConfetti() {
+      if (reduceMotion) return;
+      var colors = ['#ff8fce', '#6ad7ff', '#c9a7ff', '#ffd76a',
+        '#7c4dff', '#2f9e57'];
+      var layer = document.createElement('div');
+      layer.className = 'confetti-layer';
+      for (var i = 0; i < 90; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        var size = 6 + Math.random() * 8;
+        piece.style.width = size + 'px';
+        piece.style.height = (size * 0.6) + 'px';
+        piece.style.left = (Math.random() * 100) + 'vw';
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = (Math.random() * 0.3) + 's';
+        piece.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
+        layer.appendChild(piece);
+      }
+      document.body.appendChild(layer);
+      setTimeout(function () { layer.remove(); }, 4200);
+    }
+
+    // ===== RSVP + waitlist + guest avatar stack (PLT-25) =============
     (function () {
-      var CAPACITY = 47; // max confirmed guests for this event
+      var CAPACITY = 47;
+      var SHOWN = 4; // static guest avatars rendered in the markup
 
       var state = {
-        going: 47,            // confirmed guests
-        waitlist: 8,          // guests waiting for a spot to free up
+        going: 47,
+        waitlist: 8,
         userStatus: 'none',   // 'none' | 'going' | 'waitlisted'
-        userWaitlistSpot: 0,  // this user's position once waitlisted
+        userWaitlistSpot: 0,
       };
 
       var btn = document.getElementById('rsvp-btn');
@@ -390,6 +658,8 @@
       var capacityEl = document.getElementById('capacity');
       var statusEl = document.getElementById('capacity-status');
       var noteEl = document.getElementById('waitlist-note');
+      var youAvatar = document.getElementById('avatar-you');
+      var overflowAvatar = document.getElementById('avatar-overflow');
 
       function spotsLeft() {
         return CAPACITY - state.going;
@@ -401,7 +671,7 @@
 
         var full = spotsLeft() <= 0;
 
-        // Capacity status line under the guest count.
+        // Capacity status line.
         if (state.userStatus === 'going') {
           statusEl.textContent = "You're going 🎉";
           statusEl.className = 'capacity-status';
@@ -412,6 +682,18 @@
           statusEl.textContent =
             spotsLeft() + (spotsLeft() === 1 ? ' spot left' : ' spots left');
           statusEl.className = 'capacity-status';
+        }
+
+        // Guest avatar stack — show the user's avatar when going, and a
+        // "+N" chip for everyone beyond the rendered faces.
+        youAvatar.hidden = state.userStatus !== 'going';
+        var faces = SHOWN + (state.userStatus === 'going' ? 1 : 0);
+        var extra = state.going - faces;
+        if (extra > 0) {
+          overflowAvatar.hidden = false;
+          overflowAvatar.textContent = '+' + extra;
+        } else {
+          overflowAvatar.hidden = true;
         }
 
         // Waitlist note.
@@ -445,6 +727,7 @@
       }
 
       btn.addEventListener('click', function () {
+        var joining = state.userStatus === 'none';
         if (state.userStatus === 'going') {
           // Leaving frees a spot for the next person.
           state.going -= 1;
@@ -461,13 +744,17 @@
           state.userStatus = 'waitlisted';
           state.userWaitlistSpot = state.waitlist;
         }
+        // Celebrate when the guest joins — going or waitlist (PLT-22).
+        if (joining && state.userStatus !== 'none') {
+          launchConfetti();
+        }
         render();
       });
 
       render();
     })();
 
-    // Theme toggle — flips light/dark and remembers the choice.
+    // ===== Theme toggle ==============================================
     (function () {
       var root = document.documentElement;
       var toggle = document.getElementById('theme-toggle');
@@ -492,6 +779,161 @@
 
       syncIcon();
     })();
+
+    // ===== Countdown timer (PLT-26) ==================================
+    (function () {
+      var cd = document.getElementById('countdown');
+      var daysEl = document.getElementById('cd-days');
+      var hoursEl = document.getElementById('cd-hours');
+      var minsEl = document.getElementById('cd-mins');
+      var secsEl = document.getElementById('cd-secs');
+      var timer;
+
+      function pad(n) {
+        return n < 10 ? '0' + n : '' + n;
+      }
+
+      function tick() {
+        var diff = EVENT.start.getTime() - Date.now();
+        if (diff <= 0) {
+          clearInterval(timer);
+          cd.classList.add('ended');
+          cd.textContent = "🎉 The party's happening — see you on the roof!";
+          return;
+        }
+        var secs = Math.floor(diff / 1000);
+        daysEl.textContent = pad(Math.floor(secs / 86400));
+        hoursEl.textContent = pad(Math.floor((secs % 86400) / 3600));
+        minsEl.textContent = pad(Math.floor((secs % 3600) / 60));
+        secsEl.textContent = pad(secs % 60);
+      }
+
+      tick();
+      timer = setInterval(tick, 1000);
+    })();
+
+    // ===== Add to calendar — Google + Apple/.ics (PLT-27) ============
+    (function () {
+      // APNs-style compact UTC timestamp: 20260628T230000Z
+      function fmtUTC(date) {
+        return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      }
+
+      var start = fmtUTC(EVENT.start);
+      var end = fmtUTC(EVENT.end);
+
+      // Google Calendar — opens a prefilled event template.
+      var google = 'https://calendar.google.com/calendar/render'
+        + '?action=TEMPLATE'
+        + '&text=' + encodeURIComponent(EVENT.title)
+        + '&dates=' + start + '/' + end
+        + '&details=' + encodeURIComponent(EVENT.details)
+        + '&location=' + encodeURIComponent(EVENT.location);
+      document.getElementById('cal-google').href = google;
+
+      // Apple Calendar (and Outlook) — downloadable .ics file.
+      var ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Partiful//Landing Page//EN',
+        'BEGIN:VEVENT',
+        'UID:' + start + '@partiful-landing',
+        'DTSTAMP:' + fmtUTC(new Date()),
+        'DTSTART:' + start,
+        'DTEND:' + end,
+        'SUMMARY:' + EVENT.title,
+        'DESCRIPTION:' + EVENT.details,
+        'LOCATION:' + EVENT.location,
+        'END:VEVENT',
+        'END:VCALENDAR',
+      ].join('\r\n');
+      var blob = new Blob([ics], { type: 'text/calendar' });
+      document.getElementById('cal-apple').href = URL.createObjectURL(blob);
+
+      // Menu open/close.
+      var btn = document.getElementById('cal-btn');
+      var menu = document.getElementById('cal-menu');
+
+      function close() {
+        menu.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var willOpen = menu.hidden;
+        menu.hidden = !willOpen;
+        btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+
+      // Dismiss on outside click or after a calendar is chosen.
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
+          close();
+        }
+      });
+      menu.addEventListener('click', function () {
+        setTimeout(close, 0);
+      });
+    })();
+
+    // ===== Share — copy link + native share / SMS fallback (PLT-24) ==
+    (function () {
+      var url = window.location.href;
+      var shareData = {
+        title: EVENT.title,
+        text: "You're invited to the " + EVENT.title + '!',
+        url: url,
+      };
+
+      function flash(btn, msg) {
+        var original = btn.textContent;
+        btn.textContent = msg;
+        btn.disabled = true;
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.disabled = false;
+        }, 1600);
+      }
+
+      // Legacy fallback for browsers without the async clipboard API.
+      function legacyCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      var copyBtn = document.getElementById('copy-btn');
+      copyBtn.addEventListener('click', function () {
+        var done = function () { flash(copyBtn, '✓ Copied!'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done, function () {
+            legacyCopy(url);
+            done();
+          });
+        } else {
+          legacyCopy(url);
+          done();
+        }
+      });
+
+      var shareBtn = document.getElementById('share-btn');
+      shareBtn.addEventListener('click', function () {
+        if (navigator.share) {
+          navigator.share(shareData).catch(function () {});
+        } else {
+          // No Web Share API — open Messages with a prefilled text.
+          window.location.href =
+            'sms:?&body=' + encodeURIComponent(shareData.text + ' ' + url);
+        }
+      });
+    })();
+  })();
   </script>
 </body>
 </html>
